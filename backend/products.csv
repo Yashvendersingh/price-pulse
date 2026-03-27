@@ -1,0 +1,108 @@
+product_name,base_price,demand,stock
+Laptop Dell Inspiron 15,55000,0.72,25
+HP Pavilion Gaming Laptop,62000,0.81,18
+Apple MacBook Air M1,85000,0.95,12
+Samsung Galaxy S21,48000,0.88,30
+iPhone 13,70000,0.92,20
+OnePlus Nord CE 3,26000,0.78,40
+Realme Narzo 60,18000,0.74,50
+Sony WH-1000XM4 Headphones,22000,0.69,35
+Boat Rockerz 450,1500,0.85,120
+JBL Flip 5 Speaker,9000,0.66,45
+Canon EOS 1500D Camera,42000,0.61,15
+Nikon D5600 DSLR,50000,0.63,10
+Samsung 24-inch Monitor,14000,0.70,28
+LG Ultragear Gaming Monitor,28000,0.77,20
+Logitech Wireless Mouse,1200,0.82,150
+HP Mechanical Keyboard,3500,0.76,90
+Apple Watch Series 7,42000,0.89,25
+Noise Smartwatch ColorFit,3000,0.84,100
+Mi Smart Band 6,2500,0.80,110
+Dell Gaming Laptop G15,75000,0.83,14
+Asus ROG Strix Laptop,95000,0.91,10
+Lenovo IdeaPad Slim 3,40000,0.68,35
+iPad 9th Gen,32000,0.79,22
+Samsung Galaxy Tab S7,50000,0.73,18
+Amazon Echo Dot 4th Gen,4500,0.87,60
+Fire TV Stick 4K,6000,0.86,55
+Sony Bravia 55-inch TV,65000,0.75,12
+LG OLED TV 48-inch,90000,0.78,8
+Philips Air Fryer,12000,0.71,30
+Prestige Induction Cooktop,3000,0.65,80
+Gaming Mouse Logitech G502,4500,0.83,80
+Razer BlackWidow Keyboard,9500,0.79,60
+Samsung SSD 1TB,8500,0.76,70
+WD External Hard Drive 2TB,7000,0.72,65
+Asus TUF Gaming Laptop,78000,0.88,15
+HP OfficeJet Printer,12000,0.67,25
+Canon Inkjet Printer,9000,0.64,30
+Mi LED Smart TV 43-inch,30000,0.82,20
+Sony Soundbar HT-S350,18000,0.74,22
+JBL Live Pro Earbuds,12000,0.77,40
+Boat Airdopes 441,2500,0.86,90
+Noise Bluetooth Speaker,3500,0.81,75
+Dell Ultrasharp Monitor,35000,0.73,18
+LG Washing Machine Front Load,42000,0.69,12
+Samsung Refrigerator Double Door,55000,0.71,10
+Whirlpool Microwave Oven,15000,0.68,25
+Philips Electric Kettle,2000,0.78,85
+Prestige Mixer Grinder,6000,0.75,50
+Havells Ceiling Fan,3000,0.80,100
+Orient Table Fan,2500,0.77,95
+Mi Power Bank 20000mAh,2000,0.84,110
+Ambrane Power Bank 10000mAh,1200,0.82,130
+SanDisk 128GB Pendrive,900,0.79,150
+HP Laptop Backpack,1500,0.76,140
+Wildcraft Travel Backpack,2500,0.74,120
+American Tourister Suitcase,4500,0.72,60
+Sony PlayStation 5 Console,55000,0.94,12
+Xbox Series X Console,52000,0.91,15
+Nintendo Switch OLED,30000,0.87,20
+Asus Vivobook 15 Laptop,42000,0.75,30
+HP Chromebook 14,25000,0.70,35
+Lenovo Legion Gaming Laptop,85000,0.88,10
+Acer Predator Helios 300,90000,0.89,8
+MSI Gaming Laptop GF63,78000,0.86,12
+Samsung Galaxy A54,35000,0.82,40
+Vivo V27 Smartphone,32000,0.80,45
+Oppo Reno 8,30000,0.78,50
+Redmi Note 12 Pro,28000,0.83,55
+Realme GT Neo 3,27000,0.79,50
+Boat Stone 650 Speaker,3000,0.84,90
+Sony XB43 Bluetooth Speaker,12000,0.77,40
+JBL PartyBox 110,25000,0.72,20
+Mi Soundbar,5000,0.81,60
+Samsung Sound Tower MX-T50,20000,0.73,18
+Canon Pixma Printer,8500,0.66,30
+Epson EcoTank Printer,15000,0.68,25
+Brother Laser Printer,18000,0.69,20
+LG 32-inch Smart TV,28000,0.85,25
+Samsung 50-inch Crystal TV,45000,0.83,18
+Sony 65-inch LED TV,75000,0.80,10
+OnePlus Smart TV Y1,30000,0.82,22
+Apple iPad Pro,80000,0.92,10
+Samsung Galaxy Tab A8,22000,0.74,28
+Lenovo Tab M10,18000,0.72,30
+Amazon Kindle Paperwhite,14000,0.78,35
+Noise Air Buds Pro,2500,0.86,100
+Boat Airdopes 171,2000,0.84,110
+Realme Buds Air 3,3500,0.82,90
+OnePlus Buds Z2,4500,0.80,85
+Sony WF-1000XM4 Earbuds,18000,0.88,30
+Dell Inspiron Desktop,50000,0.76,15
+HP Pavilion Desktop,55000,0.78,12
+Apple iMac 24-inch,120000,0.90,5
+Asus Gaming Desktop,95000,0.87,8
+Logitech Gaming Mouse G Pro,7000,0.83,60
+Razer DeathAdder Mouse,4500,0.81,75
+SteelSeries Apex Keyboard,12000,0.79,50
+Corsair K95 RGB Keyboard,18000,0.77,40
+TP-Link WiFi Router AX3000,6000,0.85,70
+Netgear Nighthawk Router,15000,0.82,45
+D-Link WiFi Extender,3000,0.80,80
+Samsung Washing Machine Top Load,30000,0.73,20
+Bosch Front Load Washing Machine,45000,0.75,15
+LG Refrigerator Single Door,25000,0.71,25
+Samsung Double Door Refrigerator,55000,0.74,18
+Voltas Air Conditioner 1.5 Ton,35000,0.76,20
+Daikin Split AC 1.5 Ton,45000,0.78,15
