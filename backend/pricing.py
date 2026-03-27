@@ -14,11 +14,8 @@ def suggest_price(base_price, comp_price, demand):
     # ML prediction
     predicted_price = predict_price(comp_price, demand, base_price)
 
-    # rule-based adjustment (aligned with your ML logic)
-    if demand > 0.5:
-        final_price = predicted_price * 1.05
-    else:
-        final_price = predicted_price * 0.98
+    # Let the ML model dictate the final price completely without artificial markup
+    final_price = predicted_price
 
     return {
         "competitor_price": comp_price,

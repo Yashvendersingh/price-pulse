@@ -3,18 +3,18 @@ export default function KPICards({ products }) {
 
   const avgPrice =
     total > 0
-      ? products.reduce((sum, p) => sum + (p.your_price || 0), 0) / total
+      ? products.reduce((sum, p) => sum + Number(p.your_price || 0), 0) / total
       : 0;
 
   const avgDemand =
     total > 0
-      ? products.reduce((sum, p) => sum + (p.demand || 0), 0) / total
+      ? products.reduce((sum, p) => sum + Number(p.demand || 0), 0) / total
       : 0;
 
   const compAvg =
     total > 0
       ? products.reduce(
-          (sum, p) => sum + (p.competitor_price || 0),
+          (sum, p) => sum + Number(p.competitor_price || 0),
           0
         ) / total
       : 0;
