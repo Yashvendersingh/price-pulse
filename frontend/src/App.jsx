@@ -3,6 +3,7 @@ import Sidebar from "./components/sidebar";
 import Navbar from "./components/Navbar";
 import Dashboard from "./Pagess/Dashboard";
 import ProductDetail from "./Pagess/ProductDetail";
+import Analytics from "./Pagess/Analytics";
 
 export default function App() {
   return (
@@ -23,7 +24,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/analytics" element={<h1>Analytics Coming Soon 📊</h1>} />
+              <Route path="/analytics" element={<Analytics />} />
               <Route path="/settings" element={<h1>Settings Page ⚙</h1>} />
             </Routes>
           </div>

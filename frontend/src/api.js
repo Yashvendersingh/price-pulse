@@ -39,3 +39,16 @@ export const getComparison = async (productId) => {
     return null;
   }
 };
+
+// 🔥 PRICE HISTORY
+export const getHistory = async (productId) => {
+  try {
+    const res = await axios.get(
+      `${BASE_URL}/history/${productId}`
+    );
+    return res.data.data;
+  } catch (err) {
+    console.error("History API error:", err);
+    return [];
+  }
+};

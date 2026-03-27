@@ -1,10 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import PriceChart from "../components/PriceChart";
+import History from "../components/History";
+import ComparisonChart from "../components/ComparisonChart";
 import {
   getDashboard,
   getRecommendation,
   getComparison,
+  getHistory,
 } from "../api";
 
 export default function ProductDetail() {
@@ -14,6 +17,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [prediction, setPrediction] = useState(null);
   const [comparison, setComparison] = useState(null);
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,6 +36,9 @@ export default function ProductDetail() {
 
           const comp = await getComparison(id);
          setComparison(comp); // ✅ FIXED
+
+          const hist = await getHistory(id);
+          setHistory(hist);
         }
       } catch (err) {
         console.error("Error loading product:", err);
@@ -54,19 +61,11 @@ export default function ProductDetail() {
       ? (((prediction?.final_price - yourPrice) / yourPrice) * 100).toFixed(1)
       : 0;
 
-  // ✅ temporary history (for chart)
-  const history = [
-    {
-      date: "Now",
-      price: yourPrice,
-      competitor: competitor,
-    },
-    {
-      date: "After ML",
-      price: prediction?.final_price || yourPrice,
-      competitor: competitor,
-    },
-  ];
+  // ✅ format history for chart
+  const chartHistory = history.map(h => ({
+    date: new Date(h.timestamp).toLocaleDateString(),
+    price: h.price,
+  }));
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -99,6 +98,9 @@ export default function ProductDetail() {
         </div>
 
       </div>
+
+      {/* COMPARISON CHART */}
+      <ComparisonChart yourPrice={yourPrice} competitorPrice={competitor} />
 
       {/* GAP */}
       <div className="bg-white p-6 rounded-xl shadow mb-6">
@@ -170,8 +172,11 @@ export default function ProductDetail() {
         <h3 className="text-lg font-semibold mb-4">
           📉 Price History
         </h3>
-        <PriceChart history={history} />
+        <PriceChart history={chartHistory} />
       </div>
+
+      {/* HISTORY TABLE */}
+      <History productId={id} />
 
     </div>
   );

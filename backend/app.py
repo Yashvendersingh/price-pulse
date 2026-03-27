@@ -1,84 +1,74 @@
-import mysql.connector
+# import mysql.connector
 from flask import Flask, jsonify
 from pricing import suggest_price
-from db import conn, cursor
+# from db import conn, cursor  # commented out
 
 app = Flask(__name__)
 
+# Mock data
+mock_products = [
+    {
+        "product_id": 1,
+        "product_name": "Laptop",
+        "base_price": 50000,
+        "demand": 0.8,
+        "stock": 10,
+        "your_price": 50000,
+        "competitor_price": 48000,
+        "suggested_price": 51000,
+    },
+    {
+        "product_id": 2,
+        "product_name": "Mouse",
+        "base_price": 500,
+        "demand": 0.6,
+        "stock": 50,
+        "your_price": 500,
+        "competitor_price": 450,
+        "suggested_price": 520,
+    }
+]
+
+mock_competitors = [
+    {"product_id": 1, "price": 48000},
+    {"product_id": 2, "price": 450}
+]
+
+mock_history = [
+    {"product_id": 1, "price": 50000, "timestamp": "2023-01-01"},
+    {"product_id": 1, "price": 51000, "timestamp": "2023-02-01"},
+    {"product_id": 1, "price": 52000, "timestamp": "2023-03-01"},
+]
+
 @app.route("/dashboard")
 def dashboard():
-
-    cursor.execute("SELECT * FROM products")
-    products = cursor.fetchall()
-
-    result = []
-
-    for p in products:
-
-        # get all competitors
-        cursor.execute("SELECT * FROM competitors WHERE product_id = %s", (p["product_id"],))
-        competitors = cursor.fetchall()
-
-        # handle multiple competitors
-        if competitors:
-            prices = [c["price"] for c in competitors]
-            comp_price = min(prices)
-        else:
-            comp_price = None
-
-        # pricing logic
-        from pricing import suggest_price
-        pricing = suggest_price(p["base_price"], comp_price, p["demand"])
-
-        result.append({
-            "product_id": p["product_id"],
-            "product_name": p["product_name"],
-            "your_price": p["base_price"],
-            "competitor_price": comp_price,
-            "suggested_price": pricing["final_price"],
-            "demand": p["demand"],
-            "stock": p["stock"]
-        })
-
+    # Mock dashboard
     return jsonify({
         "status": "success",
-        "data": result
+        "data": mock_products
     })
 
 @app.route("/competitors/<int:product_id>")
 def get_competitors(product_id):
-
-    cursor.execute("SELECT * FROM competitors WHERE product_id = %s", (product_id,))
-    data = cursor.fetchall()
-
+    # Mock competitors
+    comps = [c for c in mock_competitors if c["product_id"] == product_id]
     return jsonify({
         "status": "success",
-        "data": data
+        "data": comps
     })
 
 @app.route("/comparison/<int:product_id>")
 def compare_price(product_id):
-
-    # get product
-    cursor.execute("SELECT * FROM products WHERE product_id = %s", (product_id,))
-    product = cursor.fetchone()
-
-    # get competitors
-    cursor.execute("SELECT * FROM competitors WHERE product_id = %s", (product_id,))
-    competitors = cursor.fetchall()
-
+    product = next((p for p in mock_products if p["product_id"] == product_id), None)
     if not product:
         return jsonify({"status": "error", "message": "Product not found"}), 404
 
-    if not competitors:
+    comps = [c for c in mock_competitors if c["product_id"] == product_id]
+    if not comps:
         return jsonify({"status": "error", "message": "Competitor not found"}), 404
 
-    your_price = product["base_price"]
-
-    # extract all competitor prices
-    prices = [c["price"] for c in competitors]
-    comp_price = min(prices)   # choose cheapest
-
+    your_price = product["your_price"]
+    comp_price = min(c["price"] for c in comps)
     price_gap = your_price - comp_price
 
     return jsonify({
@@ -92,47 +82,35 @@ def compare_price(product_id):
         }
     })
 
-
 @app.route("/recommendation/<int:product_id>")
 def recommendation(product_id):
-
-    # get product (ONLY ONE)
-    cursor.execute("SELECT * FROM products WHERE product_id = %s", (product_id,))
-    product = cursor.fetchone()
-
-    # get competitors (MULTIPLE)
-    cursor.execute("SELECT * FROM competitors WHERE product_id = %s", (product_id,))
-    competitors = cursor.fetchall()
-
+    product = next((p for p in mock_products if p["product_id"] == product_id), None)
     if not product:
         return jsonify({"status": "error", "message": "Product not found"}), 404
 
-    # extract values
-    base_price = product["base_price"]
-    demand = product["demand"]
+    comps = [c for c in mock_competitors if c["product_id"] == product_id]
+    comp_price = min(c["price"] for c in comps) if comps else None
 
-    # handle multiple competitors
-    if competitors:
-        prices = [c["price"] for c in competitors]
-        comp_price = min(prices)
-    else:
-        comp_price = None
+    result = suggest_price(product["base_price"], comp_price, product["demand"])
 
-    # ML + pricing logic
-    result = suggest_price(base_price, comp_price, demand)
-
-    # save history
-    from datetime import datetime
-    cursor.execute("""
-    INSERT INTO price_history (product_id, price, timestamp)
-    VALUES (%s, %s, %s)
-    """, (product_id, result["final_price"], datetime.now()))
-
-    conn.commit()
+    # Mock save history
+    mock_history.append({
+        "product_id": product_id,
+        "price": result["final_price"],
+        "timestamp": "2023-04-01"
+    })
 
     return jsonify({
-    "status": "success",
-    "data": result
+        "status": "success",
+        "data": result
+    })
+
+@app.route("/history/<int:product_id>")
+def get_history(product_id):
+    history = [h for h in mock_history if h["product_id"] == product_id]
+    return jsonify({
+        "status": "success",
+        "data": history
     })
 
 # Run server
