@@ -14,9 +14,17 @@ export default function Settings() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  // Load initial currency from stored preferences
+  useEffect(() => {
+    const savedCurrency = localStorage.getItem("currency");
+    if (savedCurrency) setCurrency(savedCurrency);
+  }, []);
+
   const handleSave = (e) => {
     e.preventDefault();
-    alert("Settings saved successfully!");
+    localStorage.setItem("currency", currency);
+    alert("Settings saved successfully! Updating pricing display...");
+    window.location.reload(); // Refresh to globally reflect currency across un-mounted components
   }
 
   return (

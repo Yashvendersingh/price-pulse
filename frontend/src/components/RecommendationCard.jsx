@@ -1,3 +1,5 @@
+import { getCurrencySymbol, formatPrice } from "../utils/currency";
+
 export default function RecommendationCard({ data }) {
   if (!data) return null;
 

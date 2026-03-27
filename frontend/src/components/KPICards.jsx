@@ -1,3 +1,5 @@
+import { getCurrencySymbol, formatPrice } from "../utils/currency";
+
 export default function KPICards({ products }) {
   const total = products?.length || 0;
 
@@ -29,7 +31,7 @@ export default function KPICards({ products }) {
 
       <div className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
         <h4 className="text-gray-500">Avg Price</h4>
-        <p className="text-2xl font-bold">₹{avgPrice.toFixed(0)}</p>
+        <p className="text-2xl font-bold">{getCurrencySymbol()}{formatPrice(avgPrice)}</p>
       </div>
 
       <div className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
@@ -39,7 +41,7 @@ export default function KPICards({ products }) {
 
       <div className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
         <h4 className="text-gray-500">Competitor Avg</h4>
-        <p className="text-2xl font-bold">₹{compAvg.toFixed(0)}</p>
+        <p className="text-2xl font-bold">{getCurrencySymbol()}{formatPrice(compAvg)}</p>
       </div>
 
     </div>

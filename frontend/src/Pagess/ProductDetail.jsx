@@ -9,6 +9,7 @@ import {
   getComparison,
   getHistory,
 } from "../api";
+import { getCurrencySymbol, formatPrice, convertPrice } from "../utils/currency";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -64,8 +65,9 @@ export default function ProductDetail() {
   // ✅ format history for chart
   const chartHistory = history.map(h => ({
     date: new Date(h.timestamp).toLocaleDateString(),
-    price: h.price,
-  }));
+    price: convertPrice(h.price),
+    competitor: convertPrice(competitor), // Creates a benchmark flat-line against the history
+  })).reverse(); // Reverse to show chronological order left-to-right
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -87,13 +89,13 @@ export default function ProductDetail() {
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Your Price</h3>
-          <p className="text-2xl font-bold">₹{yourPrice}</p>
+          <p className="text-2xl font-bold">{getCurrencySymbol()}{formatPrice(yourPrice)}</p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h3 className="text-gray-500">Competitor Price</h3>
           <p className="text-2xl font-bold">
-            ₹{competitor || "N/A"}
+            {competitor ? `${getCurrencySymbol()}${formatPrice(competitor)}` : "N/A"}
           </p>
         </div>
 
@@ -113,7 +115,7 @@ export default function ProductDetail() {
             gap > 0 ? "text-red-500" : "text-green-600"
           }`}
         >
-          ₹{gap} ({gap > 0 ? "Expensive ❌" : "Competitive ✅"})
+          {getCurrencySymbol()}{formatPrice(Math.abs(gap))} ({gap > 0 ? "Expensive ❌" : "Competitive ✅"})
         </p>
       </div>
 
@@ -123,7 +125,7 @@ export default function ProductDetail() {
           <h3 className="text-lg font-semibold mb-2">
             ⚔ Price Comparison
           </h3>
-          <p>Gap: ₹{comparison.price_gap}</p>
+          <p>Gap: {getCurrencySymbol()}{formatPrice(Math.abs(comparison.price_gap))}</p>
           <p>
             Status:{" "}
             {comparison.cheapest
@@ -141,10 +143,10 @@ export default function ProductDetail() {
 
         {prediction ? (
           <>
-            <p>ML Price: ₹{prediction.ml_price.toFixed(0)}</p>
+            <p>ML Price: {getCurrencySymbol()}{formatPrice(prediction.ml_price)}</p>
 
             <p className="text-blue-600 font-bold">
-              Final Price: ₹{prediction.final_price.toFixed(0)}
+              Final Price: {getCurrencySymbol()}{formatPrice(prediction.final_price)}
             </p>
 
             <p>
