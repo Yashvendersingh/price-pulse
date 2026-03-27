@@ -135,6 +135,6 @@ def recommendation(product_id):
     "data": result
     })
 
-# Run server
+# Run server x
 if __name__ == "__main__":
     app.run(debug=True)
