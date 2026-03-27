@@ -47,6 +47,7 @@ export default function ComparisonChart({ yourPrice, competitorPrice }) {
     },
   };
 
+  
   return (
     <div className="bg-white p-6 rounded-xl shadow-md">
       <h3 className="text-xl font-semibold mb-4">📊 Price Comparison Chart</h3>
