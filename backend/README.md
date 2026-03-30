@@ -1,90 +1,140 @@
-🚀 Price Pulse - Backend (Flask + MySQL + ML)
-📌 Overview
+# 🚀 Price Pulse — Intelligent Pricing Engine
 
-This backend system provides intelligent price recommendations based on:
+## 📌 Overview
 
-Competitor pricing
-Product demand
-Machine Learning model
+Price Pulse is a full-stack pricing intelligence dashboard that provides:
+- **AI-powered price recommendations** based on competitor pricing and market demand
+- **Competitor price tracking** with visual analytics
+- **Price simulation** with adjustable demand sensitivity
+- **Price history logging** with trend analysis
+- **Multi-currency support** (INR, USD, EUR, GBP)
 
-It exposes REST APIs that can be consumed by the frontend.
+## 🛠 Tech Stack
 
-🛠 Tech Stack
-Flask (Backend API)
-MySQL (Database)
-Scikit-learn (ML Model)
-Joblib (Model Loading)
-⚙️ Setup Instructions
-1. Clone Repository
-git clone <repo_link>
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 19 + Vite + TailwindCSS 4 |
+| **Backend** | Flask + Gunicorn |
+| **Database** | PostgreSQL (Neon Cloud) |
+| **Charts** | Recharts + Chart.js |
+| **Deployment** | Render (API) + Vercel (Frontend) |
+
+## ⚙️ Local Development Setup
+
+### 1. Clone & Install
+
+```bash
+git clone <repo_url>
+cd price-pulse
+```
+
+### 2. Backend Setup
+
+```bash
 cd backend
-2. Create Environment File
-
-Create .env file using .env.example:
-
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=price_pulse
-3. Install Dependencies
 pip install -r requirements.txt
-4. Run Backend
+```
+
+Create a `.env` file (see `.env.example`):
+```
+DATABASE_URL=postgresql://...your_neon_url...
+ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+FLASK_ENV=development
+PORT=5000
+```
+
+Run:
+```bash
 python app.py
-🌐 Base URL
-http://127.0.0.1:5000
-🔗 API Endpoints
-📦 Get All Products
-GET /products
-📊 Compare Product Price
-GET /comparison/<product_id>
-🤖 Get Price Recommendation (ML)
-GET /recommendation/<product_id>
-📈 Dashboard Data
-GET /dashboard
-📤 Response Format
+```
 
-All APIs return:
+### 3. Frontend Setup
 
-{
-  "status": "success",
-  "data": { ... }
-}
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-Error format:
+The frontend runs at `http://localhost:5173` and connects to the backend at `http://127.0.0.1:5000`.
 
-{
-  "status": "error",
-  "message": "Error message"
-}
-🧠 Features
-Multiple competitor price handling
-ML-based price prediction
-Dynamic pricing logic
-Price history tracking
-Clean modular architecture
-⚠️ Important Notes
-Do NOT commit .env file
-Make sure MySQL is running
-Ensure database price_pulse exists
-Backend must be running before frontend connects
-🔄 How Frontend Will Use
+### 4. Database Seeding
 
-Example:
+To seed the database with sample data:
+```bash
+cd backend
+python import_csv.py
+```
 
-fetch("http://127.0.0.1:5000/dashboard")
-  .then(res => res.json())
-  .then(data => console.log(data));
-👨‍💻 Backend Structure
-backend/
- ├── app.py
- ├── db.py
- ├── pricing.py
- ├── ml_model.py
- ├── requirements.txt
- ├── .env (not committed)
- ├── .env.example
-🚀 Future Improvements
-Real-time competitor scraping
-Advanced ML model tuning
-Deployment (AWS / Render / Docker)
-Authentication system
+## 🔗 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Health check |
+| GET | `/dashboard` | All products with pricing data |
+| GET | `/competitors/<id>` | Competitors for a product |
+| GET | `/comparison/<id>` | Price comparison for a product |
+| GET | `/recommendation/<id>` | AI price recommendation |
+| GET | `/history/<id>` | Price history for a product |
+| POST | `/simulate` | Simulate pricing with custom inputs |
+
+## 📤 Response Format
+
+```json
+{ "status": "success", "data": { ... } }
+```
+
+Error:
+```json
+{ "status": "error", "message": "Error description" }
+```
+
+## 🧠 Pricing Engine (V5.1)
+
+The deterministic pricing formula:
+```
+recommended = min_competitor_price × (0.97 + 0.06 × demand)
+```
+
+- **demand = 0.0** → 3% below competitor (aggressive undercut)
+- **demand = 0.5** → match competitor price
+- **demand = 1.0** → 3% above competitor (premium surge)
+- **Floor**: Never drops below 85% of your base price
+
+## 🚀 Production Deployment
+
+- **Backend**: Deploy `backend/` to [Render](https://render.com) (see `render.yaml`)
+- **Frontend**: Deploy `frontend/` to [Vercel](https://vercel.com) (see `vercel.json`)
+- **Database**: Already hosted on [Neon](https://neon.tech)
+
+See the deployment guide for step-by-step instructions.
+
+## 📁 Project Structure
+
+```
+price-pulse/
+├── backend/
+│   ├── app.py              # Flask API server
+│   ├── db.py               # Database connection
+│   ├── pricing.py          # Pricing engine (V5.1)
+│   ├── import_csv.py       # Database seeding script
+│   ├── products.csv        # Sample product data
+│   ├── competitors.csv     # Sample competitor data
+│   ├── requirements.txt    # Python dependencies
+│   ├── Procfile            # Render deployment
+│   └── .env.example        # Environment template
+├── frontend/
+│   ├── src/
+│   │   ├── Pagess/         # Page components
+│   │   ├── components/     # Reusable components
+│   │   ├── utils/          # Currency utilities
+│   │   ├── api.js          # API client
+│   │   └── App.jsx         # Root component
+│   ├── vercel.json         # Vercel deployment config
+│   └── package.json
+├── ml-model/               # ML training scripts (offline)
+│   ├── train.py
+│   ├── evaluate.py
+│   └── predict.py
+└── render.yaml             # Render blueprint
+```

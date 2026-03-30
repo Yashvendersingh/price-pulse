@@ -12,9 +12,10 @@ export default function Settings() {
       document.documentElement.classList.remove("dark");
     }
     localStorage.setItem("theme", theme);
+    // Dispatch storage event so Navbar picks up the change
+    window.dispatchEvent(new Event("storage"));
   }, [theme]);
 
-  // Load initial currency from stored preferences
   useEffect(() => {
     const savedCurrency = localStorage.getItem("currency");
     if (savedCurrency) setCurrency(savedCurrency);
@@ -23,9 +24,9 @@ export default function Settings() {
   const handleSave = (e) => {
     e.preventDefault();
     localStorage.setItem("currency", currency);
-    alert("Settings saved successfully! Updating pricing display...");
-    window.location.reload(); // Refresh to globally reflect currency across un-mounted components
-  }
+    alert("Settings saved! Refreshing to apply currency changes...");
+    window.location.reload();
+  };
 
   return (
     <div className="flex-1 bg-gray-50 dark:bg-[#1a1a1a] min-h-screen transition-colors duration-300">

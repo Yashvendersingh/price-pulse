@@ -1,7 +1,7 @@
 // src/api.js
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:5000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
 
 export const getDashboard = async () => {
   try {
@@ -24,7 +24,6 @@ export const getRecommendation = async (productId) => {
     return null;
   }
 };
-
 
 export const getComparison = async (productId) => {
   try {
@@ -49,7 +48,6 @@ export const getHistory = async (productId) => {
     return [];
   }
 };
-
 
 export const simulatePrice = async (data) => {
   try {

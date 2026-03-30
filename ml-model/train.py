@@ -82,5 +82,6 @@ print(f"MAE: {mean_absolute_error(y_test, y_pred)}")
 print(f"R2 Score: {r2_score(y_test, y_pred)}")
 
 # 6. SAVE PIPELINE
-joblib.dump(pipeline, "model.pkl")
-print("🔥 Strategic Pipeline saved as model.pkl")
+# Compress level 3 shrinks models ~75% so we can easily push past GitHub's limits
+joblib.dump(pipeline, "model.pkl.gz", compress=("gzip", 3))
+print("🔥 Strategic Pipeline saved as compressed model.pkl.gz")

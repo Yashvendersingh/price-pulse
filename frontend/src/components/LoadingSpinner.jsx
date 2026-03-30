@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 export default function LoadingSpinner() {
   return (
     <div className="flex justify-center items-center py-10">

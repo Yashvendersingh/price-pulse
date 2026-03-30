@@ -23,27 +23,25 @@ export default function KPICards({ products }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-
-      <div className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
-        <h4 className="text-gray-500">Total Products</h4>
-        <p className="text-2xl font-bold">{total}</p>
+      <div className="bg-white dark:bg-[#1f1f1f] p-4 rounded-xl shadow border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
+        <h4 className="text-gray-500 dark:text-gray-400">Total Products</h4>
+        <p className="text-2xl font-bold text-gray-800 dark:text-white">{total}</p>
       </div>
 
-      <div className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
-        <h4 className="text-gray-500">Avg Price</h4>
-        <p className="text-2xl font-bold">{getCurrencySymbol()}{formatPrice(avgPrice)}</p>
+      <div className="bg-white dark:bg-[#1f1f1f] p-4 rounded-xl shadow border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
+        <h4 className="text-gray-500 dark:text-gray-400">Avg Price</h4>
+        <p className="text-2xl font-bold text-gray-800 dark:text-white">{getCurrencySymbol()}{formatPrice(avgPrice)}</p>
       </div>
 
-      <div className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
-        <h4 className="text-gray-500">Avg Demand</h4>
-        <p className="text-2xl font-bold">{avgDemand.toFixed(2)}</p>
+      <div className="bg-white dark:bg-[#1f1f1f] p-4 rounded-xl shadow border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
+        <h4 className="text-gray-500 dark:text-gray-400">Avg Demand</h4>
+        <p className="text-2xl font-bold text-gray-800 dark:text-white">{avgDemand.toFixed(2)}</p>
       </div>
 
-      <div className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
-        <h4 className="text-gray-500">Competitor Avg</h4>
-        <p className="text-2xl font-bold">{getCurrencySymbol()}{formatPrice(compAvg)}</p>
+      <div className="bg-white dark:bg-[#1f1f1f] p-4 rounded-xl shadow border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow duration-300 transform hover:scale-105">
+        <h4 className="text-gray-500 dark:text-gray-400">Competitor Avg</h4>
+        <p className="text-2xl font-bold text-gray-800 dark:text-white">{getCurrencySymbol()}{formatPrice(compAvg)}</p>
       </div>
-
     </div>
   );
 }

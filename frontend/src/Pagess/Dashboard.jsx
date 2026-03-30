@@ -21,13 +21,12 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    setFilteredProducts(
-      products.filter(p =>
-        p.product_name.toLowerCase().includes(search.toLowerCase())
-      )
+    const filtered = products.filter(p =>
+      p.product_name.toLowerCase().includes(search.toLowerCase())
     );
+    setFilteredProducts(filtered);
     if (search) {
-      setNotification({ message: `Found ${filteredProducts.length} products matching "${search}"`, type: "info" });
+      setNotification({ message: `Found ${filtered.length} products matching "${search}"`, type: "info" });
     }
   }, [search, products]);
 
@@ -35,9 +34,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex">
-      
-      <div className="flex-1 bg-gray-100 min-h-screen p-8">
-
+      <div className="flex-1 bg-gray-100 dark:bg-[#121212] min-h-screen p-8 transition-colors duration-300">
         {notification && (
           <Notification
             message={notification.message}
@@ -47,32 +44,26 @@ export default function Dashboard() {
         )}
 
         <div className="max-w-6xl mx-auto text-left">
-
-          <h1 className="text-4xl font-bold mb-8 text-center animate-fade-in">
+          <h1 className="text-4xl font-bold mb-8 text-center text-gray-800 dark:text-white animate-fade-in">
             🔥 Intelligent Pricing Dashboard
           </h1>
 
-          {}
           <div className="mb-6">
             <input
               type="text"
               placeholder="Search products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full p-3 bg-white dark:bg-[#2d2d2d] border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
 
-          {}
           <KPICards products={filteredProducts} />
 
-        {}
-          <div className="bg-white rounded-xl shadow p-6 mt-6 animate-slide-up">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl shadow p-6 mt-6 border border-gray-100 dark:border-gray-800 animate-slide-up">
             <ProductTable products={filteredProducts} />
           </div>
-
         </div>
-
       </div>
     </div>
   );
