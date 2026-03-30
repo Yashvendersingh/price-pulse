@@ -19,12 +19,16 @@ except Exception as e:
 def predict_price(comp_price, demand, stock, base_price, is_holiday=0):
     if pipeline is None:
         raise RuntimeError("ML model pipeline is not loaded.")
-        
-    cols = ['competitor_price', 'demand', 'stock', 'is_holiday', 'base_price']
+
+    comp_price = float(comp_price)
+    demand = float(demand)
+
+    # V7: Include the interaction feature (comp_price × demand)
+    cols = ['competitor_price', 'demand', 'stock', 'is_holiday', 'base_price', 'comp_x_demand']
     features = pd.DataFrame([
-        [float(comp_price), float(demand), int(stock), int(is_holiday), float(base_price)]
+        [comp_price, demand, int(stock), int(is_holiday), float(base_price), comp_price * demand]
     ], columns=cols)
-    
+
     prediction = pipeline.predict(features)[0]
-    
+
     return float(prediction)

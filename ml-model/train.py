@@ -1,85 +1,189 @@
+"""
+Price Pulse ML Training Pipeline V8
+=====================================
+1. Model      : RandomForestRegressor
+2. Outliers   : Dual detection (IQR + Z-Score)
+3. Logic      : Demand ↑ = Price ↑,  Demand ↓ = Price ↓
+"""
+
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.model_selection import train_test_split, cross_val_score, KFold
+import os
+from scipy import stats
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_absolute_error, r2_score
 
-# 1. LOAD CLEAN DATA
-df = pd.read_csv("data/pricing_dataset.csv")
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 1. LOAD DATA
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+print("=" * 60)
+print("  Price Pulse ML Training Pipeline V8")
+print("=" * 60)
 
-# OUTLIER DETECTION (IQR Method)
-print(f"Original dataset shape: {df.shape}")
-num_cols = ['base_price', 'competitor_price', 'demand']
-for col in num_cols:
-    if col in df.columns:
-        Q1 = df[col].quantile(0.25)
-        Q3 = df[col].quantile(0.75)
-        IQR = Q3 - Q1
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        df = df[(df[col] >= lower_bound) & (df[col] <= upper_bound)]
-print(f"Dataset shape after outlier removal: {df.shape}")
+data_path = "model/realistic_pricing_dataset.csv"
+if not os.path.exists(data_path):
+    raise FileNotFoundError(f"Dataset not found at {data_path}")
 
-if 'target_price' not in df.columns:
-    def calculate_target(row):
-        base = float(row['base_price'])
-        comp = float(row['competitor_price'])
-        demand = float(row['demand'])
-        holiday = int(row['is_holiday'])
+df = pd.read_csv(data_path)
+print(f"\n📂 Loaded dataset: {df.shape[0]} rows, {df.shape[1]} columns")
 
-        demand_multiplier = 0.92 + (0.20 * demand)
-        target = base * demand_multiplier
+# Drop rows with missing critical values
+df = df.dropna(subset=['base_price', 'competitor_price', 'demand', 'target_price'])
+print(f"   After dropping NaNs: {df.shape[0]} rows")
 
-        if comp < target:
-            if demand < 0.8:
-                target = max(comp * 0.99, base * 0.85)
-            else:
-                target = target 
+# Ensure numeric types
+numeric_cols = ['base_price', 'competitor_price', 'demand', 'stock', 'is_holiday', 'target_price']
+for col in numeric_cols:
+    df[col] = pd.to_numeric(df[col], errors='coerce')
+df = df.dropna(subset=numeric_cols)
+print(f"   After ensuring numeric types: {df.shape[0]} rows")
 
-        if holiday == 1 and demand > 0.4:
-            target = max(target, base * 1.05)
-        return target
-        
-    df['target_price'] = df.apply(calculate_target, axis=1)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 2. OUTLIER DETECTION — Dual Method (IQR + Z-Score)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Example problem: base_price = 56000, competitor_price = 5600
+# That's clearly a typo/bad data. Both IQR and Z-Score catch this.
 
+print(f"\n🔍 Outlier Detection (IQR + Z-Score):")
+rows_before = len(df)
 
-# 2. SELECT FEATURES & LABELS
-X = df[['competitor_price', 'demand', 'stock', 'is_holiday', 'base_price']]
+# Calculate the ratio between competitor_price and base_price
+# A healthy ratio should be roughly 0.8 to 1.2 (within 20% of each other)
+df['comp_base_ratio'] = df['competitor_price'] / df['base_price']
+df['target_comp_ratio'] = df['target_price'] / df['competitor_price']
+
+# --- METHOD 1: Interquartile Range (IQR) ---
+def iqr_filter(series, label):
+    Q1 = series.quantile(0.25)
+    Q3 = series.quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    mask = (series >= lower) & (series <= upper)
+    removed = (~mask).sum()
+    print(f"   IQR on {label}: Q1={Q1:.3f}, Q3={Q3:.3f}, IQR={IQR:.3f}")
+    print(f"     Bounds: [{lower:.3f}, {upper:.3f}] — removed {removed} rows")
+    return mask
+
+iqr_mask_1 = iqr_filter(df['comp_base_ratio'], 'comp/base ratio')
+iqr_mask_2 = iqr_filter(df['target_comp_ratio'], 'target/comp ratio')
+
+# --- METHOD 2: Z-Score ---
+def zscore_filter(series, label, threshold=3):
+    z_scores = np.abs(stats.zscore(series, nan_policy='omit'))
+    mask = z_scores < threshold
+    removed = (~mask).sum()
+    print(f"   Z-Score on {label}: threshold={threshold}, removed {removed} rows")
+    return mask
+
+zscore_mask_1 = zscore_filter(df['comp_base_ratio'], 'comp/base ratio')
+zscore_mask_2 = zscore_filter(df['target_comp_ratio'], 'target/comp ratio')
+zscore_mask_3 = zscore_filter(df['base_price'], 'base_price')
+
+# Combine all masks — a row must pass BOTH methods to survive
+combined_mask = iqr_mask_1 & iqr_mask_2 & zscore_mask_1 & zscore_mask_2 & zscore_mask_3
+df = df[combined_mask]
+
+# Drop the temporary ratio columns
+df = df.drop(columns=['comp_base_ratio', 'target_comp_ratio'])
+
+rows_after = len(df)
+print(f"\n   ✅ Outlier Summary: {rows_before} → {rows_after} rows ({rows_before - rows_after} removed)")
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 3. FEATURE ENGINEERING
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# comp_x_demand: interaction feature so the model learns that
+# demand MULTIPLIES against competitor price (demand ↑ = price ↑)
+df['comp_x_demand'] = df['competitor_price'] * df['demand']
+
+feature_cols = ['competitor_price', 'demand', 'stock', 'is_holiday', 'base_price', 'comp_x_demand']
+
+X = df[feature_cols]
 y = df['target_price']
 
-# 3. TRAIN/TEST SPLIT
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 4. TRAIN / TEST SPLIT
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+print(f"\n📊 Split: {len(X_train)} train / {len(X_test)} test")
 
-# 4. BUILD & TRAIN PIPELINE
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 5. BUILD & TRAIN — RandomForestRegressor
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+print("\n🚀 Training RandomForestRegressor (200 trees)...")
 pipeline = Pipeline([
     ('scaler', StandardScaler()),
-    ('regressor', RandomForestRegressor(n_estimators=200, random_state=42))
+    ('regressor', RandomForestRegressor(
+        n_estimators=200,
+        max_depth=12,
+        min_samples_split=5,
+        min_samples_leaf=2,
+        random_state=42,
+        n_jobs=-1  # Use all CPU cores for speed
+    ))
 ])
 
-# RIGID TESTING: K-Fold Cross Validation
-print("\nPerforming Rigid Testing (5-Fold Cross Validation)...")
-kf = KFold(n_splits=5, shuffle=True, random_state=42)
-cv_scores = cross_val_score(pipeline, X, y, cv=kf, scoring='r2')
-cv_mae_scores = -cross_val_score(pipeline, X, y, cv=kf, scoring='neg_mean_absolute_error')
-
-print(f"Cross-Validation R2 Scores: {cv_scores}")
-print(f"Average CV R2: {cv_scores.mean():.4f} (+/- {cv_scores.std() * 2:.4f})")
-print(f"Cross-Validation MAE Scores: {cv_mae_scores}")
-print(f"Average CV MAE: ${cv_mae_scores.mean():.2f}")
-
-print("\nTraining final model...")
 pipeline.fit(X_train, y_train)
 
-# 5. EVALUATE
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 6. EVALUATE
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 y_pred = pipeline.predict(X_test)
-print("\n--- Final Model Performance on Test Set ---")
-print(f"MAE: ${mean_absolute_error(y_test, y_pred):.2f} (Average prediction error margin)")
-print(f"R2 Score: {r2_score(y_test, y_pred):.4f} (Closer to 1.0 is better)")
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
 
-# 6. SAVE COMPRESSED PIPELINE
-model_path = "model.pkl.gz"
-joblib.dump(pipeline, model_path, compress=("gzip", 3))
-print(f"\n✅ Ready for production! New pipeline saved to {model_path}")
+print(f"\n{'='*60}")
+print(f"  MODEL EVALUATION RESULTS")
+print(f"{'='*60}")
+print(f"  Algorithm    : RandomForestRegressor")
+print(f"  Trees        : 200")
+print(f"  Max Depth    : 12")
+print(f"  Train Size   : {len(X_train)}")
+print(f"  Test Size    : {len(X_test)}")
+print(f"  MAE          : Rs.{mae:.2f}")
+print(f"  R2 Score     : {r2:.6f} ({r2*100:.2f}%)")
+print(f"{'='*60}")
+
+# Feature Importances
+importances = pipeline.named_steps['regressor'].feature_importances_
+print(f"\n📈 Feature Importances:")
+for fname, imp in sorted(zip(feature_cols, importances), key=lambda x: -x[1]):
+    bar = "█" * int(imp * 50)
+    print(f"   {fname:20s} {imp:.4f}  {bar}")
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 7. SANITY CHECKS — Demand ↑ = Price ↑
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+print(f"\n🧪 Demand Sensitivity Test (comp=43500, base=45000):")
+print(f"   {'Demand':>8s}  {'Predicted':>12s}  {'Direction':>10s}")
+print(f"   {'─'*8}  {'─'*12}  {'─'*10}")
+
+prev_price = 0
+for d in [0.05, 0.15, 0.30, 0.50, 0.70, 0.85, 0.95]:
+    row = pd.DataFrame([{
+        'competitor_price': 43500,
+        'demand': d,
+        'stock': 50,
+        'is_holiday': 0,
+        'base_price': 45000,
+        'comp_x_demand': 43500 * d
+    }])
+    pred = pipeline.predict(row)[0]
+    direction = "↑" if pred > prev_price else ("↓" if pred < prev_price else "→")
+    if prev_price == 0:
+        direction = "—"
+    print(f"   {d:>7.0%}  Rs.{pred:>10,.0f}  {direction:>10s}")
+    prev_price = pred
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 8. SAVE MODEL
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+joblib.dump(pipeline, "model.pkl.gz", compress=("gzip", 3))
+joblib.dump(pipeline, "model.pkl")
+print(f"\n✅ Model saved as model.pkl and model.pkl.gz")
+print(f"   Pipeline: StandardScaler -> RandomForestRegressor(200 trees)")
