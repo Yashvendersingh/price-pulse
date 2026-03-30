@@ -10,24 +10,9 @@ def evaluate_model():
     
     # 1. Load data and model
     try:
-        pipeline = joblib.load("model.pkl")
+        pipeline = joblib.load("model.pkl.gz")
    
-        amazon = pd.read_csv("data/amazon.csv")
-        walmart = pd.read_csv("data/Walmart.csv")
-        
-        amazon.rename(columns={'actual_price': 'base_price'}, inplace=True)
-        amazon['base_price'] = amazon['base_price'].replace('[₹,]', '', regex=True).astype(float)
-        walmart.rename(columns={'Weekly_Sales': 'demand'}, inplace=True)
-        walmart['demand'] = walmart['demand'] / 100000 
-        
-        min_len = min(len(amazon), len(walmart))
-        df = pd.DataFrame({
-            'base_price': amazon['base_price'][:min_len],
-            'demand': walmart['demand'][:min_len],
-            'is_holiday': walmart['Holiday_Flag'][:min_len].astype(int)
-        })
-        df['stock'] = np.random.randint(0, 100, size=len(df))
-        df['competitor_price'] = df['base_price'] * np.random.uniform(0.9, 1.1, size=len(df))
+        df = pd.read_csv("data/pricing_dataset.csv")
         
         # Test Features
         X_test = df[['competitor_price', 'demand', 'stock', 'is_holiday', 'base_price']]
